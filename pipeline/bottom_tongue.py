@@ -428,71 +428,66 @@ class VideoTongueTrial(dj.Computed): # units are mm, deg, and seconds
                 #insert_key.trial[x] = trials[x]
                 continue       
 #%%                
-            # defining peak as 75% from trough to peak
-            for index in range(len(trough_idx)):
-                if len(trough_idx)>1:
-                    hh = np.where((Y_all[trough_idx[index]-1:pks_idx[index]+1])>0)[0]
+            # defining peak as 75% from trough to peak            
                 
-            if 'hh' in locals() and len(hh)<1:
-                pks_idx = np.delete(pks_idx, 0)
-                trough_idx = np.delete(trough_idx, -1)
-                
-            
-            if len(pks_idx) == len(trough_idx):
-                peak_to_trough = np.array([tongue_amplitude[y] for y in pks_idx]) - np.array([tongue_amplitude[y] for y in trough_idx])
-            else:
-                corresponding_trough_idx1=[]
-                for xxx in range(len(pks_idx)):
-                    temp_idx2 = np.argwhere(np.array(trough_idx) < pks_idx[xxx])               
-                    if temp_idx2.size<=0 and xxx ==0:
-                        trough_idx = np.insert(trough_idx,0,1)
-                        corresponding_trough_idx1 = pd.DataFrame(np.array([0]))
-                        #corresponding_trough_idx.insert(xx,1)
-                    else:
-                        if isinstance(corresponding_trough_idx1,list):
-                            corresponding_trough_idx1 = pd.DataFrame([])                    
-                        temp_idx3 = temp_idx2[-1]                        
-                        trough_idx_array = np.array(trough_idx)
-
-                        corresponding_trough_idx1 = pd.DataFrame.append(corresponding_trough_idx1,pd.DataFrame(np.array([trough_idx_array[temp_idx3][0]])))
-                trough_idx = corresponding_trough_idx1.to_numpy() #take only troughs that match to peaks
-                trough_idx = trough_idx.flatten()
-                
-                bad_5 = np.intersect1d(pks_idx,trough_idx)
-                if len(bad_5)>0:
-                
-                    for i in range(len(bad_5)):
-                        bad_6 = np.where(bad_5[i]==pks_idx)
-                        if i == 0:
-                            badd = bad_6
+            try:
+                if len(pks_idx) == len(trough_idx):
+                    peak_to_trough = np.array([tongue_amplitude[y] for y in pks_idx]) - np.array([tongue_amplitude[y] for y in trough_idx])
+                else:
+                    corresponding_trough_idx1=[]
+                    for xxx in range(len(pks_idx)):
+                        temp_idx2 = np.argwhere(np.array(trough_idx) < pks_idx[xxx])               
+                        if temp_idx2.size<=0 and xxx ==0:
+                            trough_idx = np.insert(trough_idx,0,1)
+                            corresponding_trough_idx1 = pd.DataFrame(np.array([0]))
+                            #corresponding_trough_idx.insert(xx,1)
                         else:
-                            badd = np.append(badd,bad_6)
-                            
-                    for ii in reversed(badd):
-                        pks_idx = np.delete(pks_idx, ii, 0)
-                        
-                        
-                    for i in range(len(bad_5)):
-                        bad_7 = np.where(bad_5[i]==trough_idx)
-                        if i == 0:
-                            bad_8 = bad_7
-                        else:
-                            bad_8 = np.append(bad_8,bad_7)
-                            
-                    for ii in reversed(bad_8):
-                        trough_idx = np.delete(trough_idx, ii, 0)
-                        
-                peak_to_trough = peak_to_trough = np.array([tongue_amplitude[y] for y in pks_idx]) - np.array([tongue_amplitude[y] for y in trough_idx])
-                
+                            if isinstance(corresponding_trough_idx1,list):
+                                corresponding_trough_idx1 = pd.DataFrame([])                    
+                            temp_idx3 = temp_idx2[-1]                        
+                            trough_idx_array = np.array(trough_idx)
+    
+                            corresponding_trough_idx1 = pd.DataFrame.append(corresponding_trough_idx1,pd.DataFrame(np.array([trough_idx_array[temp_idx3][0]])))
+                    trough_idx = corresponding_trough_idx1.to_numpy() #take only troughs that match to peaks
+                    trough_idx = trough_idx.flatten()
                     
-                    #corresponding_trough_idx.insert(xx,trough_idx[temp_idx])
+                    bad_5 = np.intersect1d(pks_idx,trough_idx)
+                    if len(bad_5)>0:
+                    
+                        for i in range(len(bad_5)):
+                            bad_6 = np.where(bad_5[i]==pks_idx)
+                            if i == 0:
+                                badd = bad_6
+                            else:
+                                badd = np.append(badd,bad_6)
+                                
+                        for ii in reversed(badd):
+                            pks_idx = np.delete(pks_idx, ii, 0)
+                            
+                            
+                        for i in range(len(bad_5)):
+                            bad_7 = np.where(bad_5[i]==trough_idx)
+                            if i == 0:
+                                bad_8 = bad_7
+                            else:
+                                bad_8 = np.append(bad_8,bad_7)
+                                
+                        for ii in reversed(bad_8):
+                            trough_idx = np.delete(trough_idx, ii, 0)
+                            
+                    peak_to_trough = peak_to_trough = np.array([tongue_amplitude[y] for y in pks_idx]) - np.array([tongue_amplitude[y] for y in trough_idx])
+                    
+                        
+                        #corresponding_trough_idx.insert(xx,trough_idx[temp_idx])
+                    
+    #            for i in range(len(pks_idx)):
+    #                if pks_idx[i]!=[]:
+    #                    peak_to_trough1.insert(i,np.array(tongue_amplitude[i]))
+    #                else:
+    #                    peak_to_trough1.insert(i,[])           
                 
-#            for i in range(len(pks_idx)):
-#                if pks_idx[i]!=[]:
-#                    peak_to_trough1.insert(i,np.array(tongue_amplitude[i]))
-#                else:
-#                    peak_to_trough1.insert(i,[])           
-                 
+            except:
+                continue
             peak_at_75 = np.array([peak_to_trough[i]*0.75 for i in range(len(peak_to_trough))]) + np.array([tongue_amplitude[i] for i in trough_idx])   
             pks75_idx = []
             
