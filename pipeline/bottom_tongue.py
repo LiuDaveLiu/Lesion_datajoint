@@ -429,11 +429,11 @@ class VideoTongueTrial(dj.Computed): # units are mm, deg, and seconds
                 continue       
 #%%                
             # defining peak as 75% from trough to peak
-            add_idx_trough = []
             for index in range(len(trough_idx)):
-                hh = np.where((Y_all[trough_idx[index]-1:pks_idx[index]+1])>0)[0]
+                if len(trough_idx)>1:
+                    hh = np.where((Y_all[trough_idx[index]-1:pks_idx[index]+1])>0)[0]
                 
-            if len(hh)<1:
+            if 'hh' in locals() and len(hh)<1:
                 pks_idx = np.delete(pks_idx, 0)
                 trough_idx = np.delete(trough_idx, -1)
                 
