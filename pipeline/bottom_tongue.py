@@ -429,12 +429,20 @@ class VideoTongueTrial(dj.Computed): # units are mm, deg, and seconds
                 continue       
 #%%                
             # defining peak as 75% from trough to peak
+            add_idx_trough = []
+            for index in range(len(trough_idx)):
+                hh = np.where((Y_all[trough_idx[index]-1:pks_idx[index]+1])>0)[0]
+                
+            if len(hh)<1:
+                pks_idx = np.delete(pks_idx, 0)
+                trough_idx = np.delete(trough_idx, -1)
+                
+            
             if len(pks_idx) == len(trough_idx):
                 peak_to_trough = np.array([tongue_amplitude[y] for y in pks_idx]) - np.array([tongue_amplitude[y] for y in trough_idx])
             else:
                 corresponding_trough_idx1=[]
                 for xxx in range(len(pks_idx)):
-                    print(xxx)
                     temp_idx2 = np.argwhere(np.array(trough_idx) < pks_idx[xxx])               
                     if temp_idx2.size<=0 and xxx ==0:
                         trough_idx = np.insert(trough_idx,0,1)
@@ -443,13 +451,8 @@ class VideoTongueTrial(dj.Computed): # units are mm, deg, and seconds
                     else:
                         if isinstance(corresponding_trough_idx1,list):
                             corresponding_trough_idx1 = pd.DataFrame([])                    
-                        temp_idx3 = temp_idx2[-1]
-                        print(corresponding_trough_idx1)
-                        print([temp_idx3][0])
-                        print(trough_idx)
-                        print(type([temp_idx3][0]))
+                        temp_idx3 = temp_idx2[-1]                        
                         trough_idx_array = np.array(trough_idx)
-                        print(type(trough_idx))
 
                         corresponding_trough_idx1 = pd.DataFrame.append(corresponding_trough_idx1,pd.DataFrame(np.array([trough_idx_array[temp_idx3][0]])))
                 trough_idx = corresponding_trough_idx1.to_numpy() #take only troughs that match to peaks
@@ -492,9 +495,11 @@ class VideoTongueTrial(dj.Computed): # units are mm, deg, and seconds
                  
             peak_at_75 = np.array([peak_to_trough[i]*0.75 for i in range(len(peak_to_trough))]) + np.array([tongue_amplitude[i] for i in trough_idx])   
             pks75_idx = []
-            for i_p in range(len(pks_idx)):
+            
+            for i_p in range(len(pks_idx)):                
                 current_idx = list(range(trough_idx[i_p],pks_idx[i_p]+1))
                 temp_temp = abs(np.array([tongue_amplitude[i] for i in current_idx]) - np.array(peak_at_75[i_p]))
+            
                 temp_idx = np.argmin(temp_temp)
                 temp_2 = trough_idx[i_p]
                 pks75_idx.insert(i_p,trough_idx[i_p]+temp_2-1)
